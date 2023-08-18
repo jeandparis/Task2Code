@@ -90,17 +90,17 @@ def update_input_container(selected_statistics):
 # Define the callback function to update the input container based on the selected statistics
 @app.callback(
     Output(component_id='output-container', component_property='children'),
-    [Input(component_id='select-year', component_property='value'), Input(component_id='dropdown-statistics', component_property='value')])
+    [Input(component_id='dropdown-statistics', component_property='value'), Input(component_id='select-year', component_property='value')])
 
 
-def update_output_container(selected_year, selected_statistics):
+def update_output_container(selected_statistics, input_year):
     if selected_statistics == 'Recession Period Statistics':
         # Filter the data for recession periods
         recession_data = data[data['Recession'] == 1]
 
-    elif selected_statistics == 'Yearly Statistics':
+#    elif selected_statistics == 'Yearly Statistics':
         # Filter the data for the selected year
-        yearly_data = data[data['Year'] == selected_year]   
+#       yearly_data = data[data['Year'] == selected_year]   
 
 
 
@@ -123,7 +123,7 @@ def update_output_container(selected_year, selected_statistics):
         average_sales =recession_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()                           
         R_chart2  = dcc.Graph(
             figure=px.bar(average_sales, 
-                x='Year',
+                x='Vehicle_Type',
                 y='Automobile_Sales',
                 title="Automobile Sales Fluctuation over Recession Period"))
         
@@ -132,16 +132,16 @@ def update_output_container(selected_year, selected_statistics):
         exp_rec= recession_data.groupby('Vehicle_Type')['Total_Expenditure'].sum().reset_index()
         R_chart3 = dcc.Graph(
             figure=px.pie(exp_rec, 
-                values='Total_Expenditure',
+                values='Advertising_Expenditure',
                 names='Vehicle_Type',
                 title="Total Expenditure Share by Vehicle Type during Recessions"))
 
 # Plot 4 bar chart for the effect of unemployment rate on vehicle type and sales
-        unemployment_effect = recession_data.groupby('Vehicle_Type')[['Unemployment_Rate', 'Automobile_Sales']].mean().reset_index()
+        unemployment_effect = recession_data.groupby(['Vehicle_Type','unemployment_rate'])['Automobile_Sales'].mean().reset_index()
         R_chart4 = dcc.Graph(
             figure=px.bar(unemployment_effect,        
-                x='Vehicle_Type',
-                y=['Unemployment_Rate', 'Automobile_Sales'],
+                x='unemployment_rate',
+                y='Automobile_Sales',
                 title="Effect of Unemployment Rate on Vehicle Type and Sales",
                 labels={'variable': 'Variables'}))
 
